@@ -1,6 +1,5 @@
 from app import webserver
 from flask import request, jsonify
-
 import os
 import json
 
@@ -10,7 +9,6 @@ def post_endpoint():
     if request.method == 'POST':
         # Assuming the request contains JSON data
         data = request.json
-        print(f"got data in post {data}")
 
         # Process the received data
         # For demonstration purposes, just echoing back the received data
@@ -24,7 +22,6 @@ def post_endpoint():
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
-    print(f"JobID is {job_id}")
     # TODO
     # Check if job_id is valid
     jid = job_id.split("_")[2]
@@ -35,13 +32,16 @@ def get_response(job_id):
             })
     else:
         file_name = 'results/job_id_' + jid + '.json'
-        if os.path.exists(file_name):
-            with open (file_name, 'r') as file:
-                file_data = json.load(file)
-                return jsonify({
-                    'status': 'done',
-                    'data': file_data
-                })
+        if os.path.exists(file_name) and os.path.getsize(file_name) > 0:
+            try:
+                with open(file_name, 'r') as file:
+                    file_data = json.load(file)
+                    return jsonify({
+                        'status': 'done',
+                        'data': file_data
+                    })
+            except json.JSONDecodeError:
+                return jsonify({'status': 'error'})
         else:
             return jsonify({
                 'status': 'running',
@@ -49,179 +49,205 @@ def get_response(job_id):
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
-    # Get request data
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'states_mean'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'states_mean'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data['state'],
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'state_mean'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'state_mean'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'best5'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'best5'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
+    # TODO
     data = request.json
-    data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'worst5'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'worst5'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'global_mean'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'global_mean'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'diff_from_mean'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'diff_from_mean'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'state_diff_from_mean'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'state_diff_from_mean'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
-#     # TODO
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'mean_by_category'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'mean_by_category'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
-#     # TODO
+    # TODO
     data = request.json
-    print(f"Got request {data}")
     
     job_id = webserver.job_counter
-    webserver.tasks_runner.jobs_queue.put((data["question"],
-                                           data["state"] if "state" in data.keys() else None,
-                                           job_id,
-                                           webserver.data_ingestor.data,
-                                           webserver.data_ingestor.helper(data["question"]),
-                                           webserver.data_ingestor.data_by_category,
-                                           webserver.data_ingestor.questions_best_is_min,
-                                           webserver.data_ingestor.questions_best_is_max,
-                                           'state_mean_by_category'))
-    webserver.job_counter += 1
+    
+    if not webserver.tasks_runner.shutdown.is_set():
+        webserver.tasks_runner.jobs_queue.put((data["question"],
+                                            data["state"] if "state" in data.keys() else None,
+                                            job_id,
+                                            webserver.data_ingestor,
+                                            'state_mean_by_category'))
+        webserver.tasks_runner.lock.acquire()
+        webserver.job_counter += 1
+        webserver.tasks_runner.lock.release()
 
-    return jsonify({"job_id": "job_id_" + str(job_id)})
+        return jsonify({"job_id": "job_id_" + str(job_id)})
+    
+    return jsonify({"status": "error", "reason": "Server is shutting down"})
+
+@webserver.route('/api/graceful_shutdown', methods=['GET'])
+def graceful_shutdown():
+    webserver.tasks_runner.shutdown.set()
+    return jsonify({"status": "ok"})
+
+@webserver.route('/api/num_jobs', methods=['GET'])
+def num_jobs():
+    if webserver.tasks_runner.shutdown.is_set() and webserver.tasks_runner.jobs_queue.empty():
+        return jsonify({'status': 'done', 'num_jobs': 0})
+    
+    return jsonify({'status': 'running', "num_jobs": webserver.tasks_runner.jobs_queue.qsize()})
 
 # You can check localhost in your browser to see what this displays
 @webserver.route('/')

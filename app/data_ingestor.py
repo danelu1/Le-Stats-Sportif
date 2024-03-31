@@ -7,18 +7,16 @@ class DataIngestor:
         # TODO: Read csv from csv_path
         with open(csv_path, 'r') as file:
             csvFile = csv.reader(file)
-            states_stats = [(x[4], x[11], x[8], x[30], x[31]) for x in csvFile][1:]
+            states_stats = [(x[4], x[11], x[8], x[30], x[31]) for x in csvFile if x[11] != ''][1:]
             self.data = {(question, state): [] for (state, _, question, _, _) in states_stats}
             
             for state, stat, question, _, _ in states_stats:
-                if stat != '':
-                    self.data[(question, state)].append(float(stat))
+                self.data[(question, state)].append(float(stat))
                     
             self.data_by_category = {(question, state, category, category_value): [] for (state, _, question, category, category_value) in states_stats}
             
             for state, stat, question, category, category_value in states_stats:
-                if stat != '':
-                    self.data_by_category[(question, state, category, category_value)].append(float(stat))
+                self.data_by_category[(question, state, category, category_value)].append(float(stat))
 
         self.questions_best_is_min = [
             'Percent of adults aged 18 years and older who have an overweight classification',
