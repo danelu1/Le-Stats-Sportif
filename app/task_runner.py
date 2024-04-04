@@ -1,8 +1,6 @@
 from queue import Queue
-from threading import Thread, Event, Lock
-import time
+from threading import Thread, Event
 import os
-from flask import jsonify
 import json
 
 class ThreadPool:
@@ -21,7 +19,6 @@ class ThreadPool:
             self.num_threads = os.cpu_count()
             
         self.jobs_queue = Queue()
-        self.lock = Lock()
         self.shutdown = Event()
         
         if not os.path.exists('results'):
@@ -30,12 +27,17 @@ class ThreadPool:
     def start(self):
         for _ in range(self.num_threads):
             TaskRunner(self).start()
+            
+    def join(self):
+        if self.shutdown.is_set():
+            TaskRunner(self).join()
 
 class TaskRunner(Thread):
     def __init__(self, pool):
         # TODO: init necessary data structures
         super().__init__()
         self.thread_pool = pool
+        # self.thread_pool = None
         
     def states_mean_solve(self, question, data):
         characteristics = data.items()
@@ -87,7 +89,7 @@ class TaskRunner(Thread):
             # Repeat until graceful_shutdown
             if self.thread_pool.shutdown.is_set() and self.thread_pool.jobs_queue.empty():
                 break
-            
+                
             (question, state, job_id, data_ingestor, command) = self.thread_pool.jobs_queue.get()
             if command == 'states_mean':
                 with open('results/job_id_' + str(job_id) + '.json', 'w') as file:

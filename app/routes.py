@@ -2,6 +2,7 @@ from app import webserver
 from flask import request, jsonify
 import os
 import json
+import copy
 
 def treat_route(webserver, request, route):
     data = request.json
@@ -14,9 +15,8 @@ def treat_route(webserver, request, route):
                                             job_id,
                                             webserver.data_ingestor,
                                             route.split("/")[2]))
-        webserver.tasks_runner.lock.acquire()
+        
         webserver.job_counter += 1
-        webserver.tasks_runner.lock.release()
 
         return jsonify({"job_id": "job_id_" + str(job_id)})
     
@@ -116,6 +116,23 @@ def state_mean_by_category_request():
 def graceful_shutdown():
     webserver.tasks_runner.shutdown.set()
     return jsonify({"status": "ok"})
+
+@webserver.route('/api/jobs', methods=['GET'])
+def jobs():
+    if webserver.tasks_runner.shutdown.is_set() and webserver.tasks_runner.jobs_queue.empty():
+        return jsonify({'status': 'done', 'jobs': []})
+    
+    jobs = []
+    q = copy.copy(webserver.tasks_runner.jobs_queue)
+    while not q.empty():
+        job = q.get()
+        file_name = 'results/job_id_' + job[2] + '.json'
+        if os.path.exists(file_name) and os.path.getsize(file_name) > 0:
+            jobs.append({"job_id_" + job[2]: "done"})
+        else:
+            jobs.append({"job_id_" + job[2]: "running"})
+            
+    return jsonify({'status': 'done', 'jobs': jobs})
 
 @webserver.route('/api/num_jobs', methods=['GET'])
 def num_jobs():
