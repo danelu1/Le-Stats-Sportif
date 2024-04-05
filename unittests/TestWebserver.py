@@ -1,17 +1,11 @@
 import unittest
-import os
 import json
-import requests
-import time
 from app.data_ingestor import DataIngestor
-from app.task_runner import ThreadPool, TaskRunner
+from unittests.task_runner import TaskRunner, ThreadPool
 
 ONLY_LAST = False
 
 class TestWebserver(unittest.TestCase):
-    # def setUp(self):
-    #     os.system("rm -rf results/*")
-    
     task_runner = TaskRunner(ThreadPool())
     data_ingestor = DataIngestor("./unittests/test_table.csv")
     
@@ -19,14 +13,10 @@ class TestWebserver(unittest.TestCase):
         with open(f"unittests/tests/{end_point}/input/in-1.json", "r") as file:
             in_data = json.load(file)
             return in_data["question"], in_data["state"] if "state" in in_data else None
-        
-        return None
     
     def retrieve_output(self, end_point):
         with open(f"unittests/tests/{end_point}/output/out-1.json", "r") as file:
             return json.load(file)
-        
-        return None
     
     @unittest.skipIf(ONLY_LAST, "Checking only the last added test")
     def test_states_mean(self):
@@ -107,4 +97,4 @@ if __name__ == '__main__':
     try:
         unittest.main()
     finally:
-        print("Total score: MAMA MEA")
+        print("Tests finished")
