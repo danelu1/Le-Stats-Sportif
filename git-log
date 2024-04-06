@@ -1,0 +1,117 @@
+commit 0a387eabadf176574a55bd76e17a6609d086e9f5
+Author: Giorgiana VLĂSCEANU <giorgiana.vlasceanu@upb.ro>
+Date:   Mon Mar 25 16:03:56 2024 +0000
+
+    Update file README.md
+
+commit 84e9fd78da622860704eaddddcac7ab820a33612
+Author: Eduard Staniloiu <edi33416@gmail.com>
+Date:   Mon Mar 25 16:29:58 2024 +0200
+
+    Add 2023-2024 hw1
+
+commit 2140dd16e4c544c42a524457bae2891756a2f9a5
+Author: Eduard Staniloiu <edi33416@gmail.com>
+Date:   Mon Mar 25 15:32:41 2024 +0200
+
+    Remove 2022-2023 hw
+
+commit 10a09f8dcb51adc48f6a39b7a4114c57b5d01818
+Merge: c6a50e3 823a187
+Author: Giorgiana VLĂSCEANU <giorgiana.vlasceanu@upb.ro>
+Date:   Sat Mar 23 16:45:01 2024 +0000
+
+    Merge branch 'master' into 'master'
+    
+    Adaugat paranteze la print
+    
+    See merge request asc/asc-public!1
+
+commit c6a50e3bc9fc0585d6cebd54472e715f49ab6b19
+Author: Grigore Lupescu <grigore.lupescu@gmail.com>
+Date:   Thu May 18 10:57:39 2023 +0300
+
+    Fix include string header
+
+commit 823a1876493a3f93ac67db2e8678e05e0990e2f9
+Author: Farhad Ali Irinel GUL <farhad_ali.gul@stud.acs.upb.ro>
+Date:   Wed May 17 05:24:05 2023 +0000
+
+    Adaugat paranteze la print
+
+commit 5e65253e4134bafa78a04c65429a72c4ffa98cda
+Author: Grigore Lupescu <grigore.lupescu@gmail.com>
+Date:   Mon May 15 22:04:40 2023 +0300
+
+    Add 3-parallel-hashtable assignment
+
+commit f941957bdc7821775fd35e6200de8f681739c25d
+Merge: fc02748 51be372
+Author: Constantin Eduard Staniloiu <edi33416@gmail.com>
+Date:   Wed Mar 24 15:59:32 2021 +0000
+
+    Merged in tema1_2021_checker (pull request #1)
+    
+    Tema1 2021: add timeouts per test
+    
+    Approved-by: Giorgiana Vlăsceanu
+
+commit 51be37205563b495b75dd18e304a15e17d31f2f7
+Author: Eduard Staniloiu <edi33416@gmail.com>
+Date:   Wed Mar 24 17:55:00 2021 +0200
+
+    Tema1 2021: add timeouts per test
+
+commit fc02748e1a0835d3daa5fd42b8fa0a4aa07a8e06
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 16:27:46 2021 +0200
+
+    Update README example
+
+commit afb300aac46a1025a47b6f0f5d66638adea2f70d
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 16:04:21 2021 +0200
+
+    fix typos
+
+commit e2ce751488b587c16e80385cbb467be733bffcac
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 16:01:15 2021 +0200
+
+    Add README example
+
+commit 997055923d44b16ae0386df32df221478a11ec66
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 15:24:50 2021 +0200
+
+    Update README
+
+commit 1683bee4423df28cdb07c5827a5bf65f821df170
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 15:12:00 2021 +0200
+
+    Update README for 1-marketplace
+
+commit 54a11b3d35b3ee643945a45cd4f5208eec0432fa
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 15:08:00 2021 +0200
+
+    Add 1-marketplace assignment
+
+commit c2d5891869074abda6ec7ea0d3e55ff41f3966b5
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 14:55:23 2021 +0200
+
+    Update README
+
+commit 063fb3f48c528420ae83428eeef66926812d6a5f
+Author: giorgianav <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 14:52:21 2021 +0200
+
+    Add README file
+
+commit 385b14907bf8b5bbb0efa0e6b92699247771fc05
+Author: Giorgiana Vlăsceanu <giorgiana.vlasceanu@gmail.com>
+Date:   Thu Mar 18 12:39:54 2021 +0000
+
+    Initial commit

@@ -8,7 +8,7 @@ import copy
 from flask import request, jsonify
 from app import webserver
 
-def treat_route(webserver, request, route):
+def treat_route(server, req, route):
     '''
     Function used to treat a certain route given as parameter.
     The given request is parsed and a new job_id is initialised
@@ -21,22 +21,22 @@ def treat_route(webserver, request, route):
     The job_counter is incremented and the new job_id is returned.
     If the server is shutting down, an error message is returned.
     '''
-    data = request.json
+    data = req.json
 
-    webserver.logger.info(f"Received data: {data}")
+    server.logger.info(f"Received data: {data}")
 
-    job_id = webserver.job_counter
+    job_id = server.job_counter
 
-    if not webserver.tasks_runner.shutdown.is_set():
-        webserver.tasks_runner.jobs_queue.put((data["question"],
+    if not server.tasks_runner.shutdown.is_set():
+        server.tasks_runner.jobs_queue.put((data["question"],
                                             data["state"] if "state" in data.keys() else None,
                                             job_id,
-                                            webserver.data_ingestor,
+                                            server.data_ingestor,
                                             route.split("/")[2]))
 
-        webserver.job_counter += 1
+        server.job_counter += 1
 
-        webserver.logger.info(f"Added job with id: job_id_{job_id} to the queue")
+        server.logger.info(f"Added job with id: job_id_{job_id} to the queue")
 
         return jsonify({"job_id": "job_id_" + str(job_id)})
 
@@ -53,8 +53,8 @@ def post_endpoint():
         response = {"message": "Received data successfully", "data": data}
 
         return jsonify(response)
-    else:
-        return jsonify({"error": "Method not allowed"}), 405
+
+    return jsonify({"error": "Method not allowed"}), 405
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
@@ -74,12 +74,12 @@ def get_response(job_id):
     simply return a message saying that the task is still running.
     '''
     jid = job_id.split("_")[2]
-    if not int(jid) < webserver.job_counter:
+    if int(jid) >= webserver.job_counter:
         return jsonify({
             'status': 'error',
             'reason': 'Invalid job_id'
             })
-        
+
     file_name = 'results/job_id_' + jid + '.json'
     if os.path.exists(file_name) and os.path.getsize(file_name) > 0:
         try:
@@ -181,17 +181,17 @@ def jobs():
     if webserver.tasks_runner.shutdown.is_set() and webserver.tasks_runner.jobs_queue.empty():
         return jsonify({'status': 'done', 'jobs': []})
 
-    jobs = []
+    jobs_list = []
     q = copy.copy(webserver.tasks_runner.jobs_queue)
     while not q.empty():
         job = q.get()
         file_name = 'results/job_id_' + job[2] + '.json'
         if os.path.exists(file_name) and os.path.getsize(file_name) > 0:
-            jobs.append({"job_id_" + job[2]: "done"})
+            jobs_list.append({"job_id_" + job[2]: "done"})
         else:
-            jobs.append({"job_id_" + job[2]: "running"})
+            jobs_list.append({"job_id_" + job[2]: "running"})
 
-    return jsonify({'status': 'done', 'jobs': jobs})
+    return jsonify({'status': 'done', 'jobs': jobs_list})
 
 @webserver.route('/api/num_jobs', methods=['GET'])
 def num_jobs():
@@ -211,11 +211,11 @@ def index():
     Method used to treat the '/' and '/index' routes.
     '''
     routes = get_defined_routes()
-    msg = f"Hello, World!\n Interact with the webserver using one of the defined routes:\n"
+    msg = "Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
     paragraphs = ""
     for route in routes:
-        paragraphs += f"<p>{route}</p>"
+        paragraphs.join(f"<p>{route}</p>")
 
     msg += paragraphs
     return msg

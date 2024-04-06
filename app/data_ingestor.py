@@ -18,21 +18,16 @@ class DataIngestor:
     the state, the category and the category value as the key and the list
     of values as the value.
     '''
-    # pylint: disable=too-few-public-methods
-    # pylint: disable=line-too-long
     def __init__(self, csv_path: str):
         with open(csv_path, 'r', encoding='utf-8') as file:
             csv_file = csv.reader(file)
             states_stats = [(x[4], x[11], x[8], x[30], x[31]) for x in csv_file if x[11] != ''][1:]
-            self.data = {(question, state): [] for (state, _, question, _, _)
-                        in states_stats}
+            self.data = {(question, state): [] for (state, _, question, _, _) in states_stats}
 
             for state, stat, question, _, _ in states_stats:
                 self.data[(question, state)].append(float(stat))
 
-            self.data_by_category = {(question, state, category, category_value): []
-                                    for (state, _, question, category, category_value)
-                                    in states_stats}
+            self.data_by_category = {(question, state, category, category_value): [] for (state, _, question, category, category_value) in states_stats}
 
             for state, stat, question, category, category_value in states_stats:
                 item = (question, state, category, category_value)

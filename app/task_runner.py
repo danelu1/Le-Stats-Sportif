@@ -4,7 +4,6 @@ the 'POST' methods. It uses the ThreadPool class to create a pool of threads
 that will process the tasks. The tasks are processed by the TaskRunner class
 in the run method.
 '''
-
 from queue import Queue
 from threading import Thread, Event
 import os
@@ -45,7 +44,7 @@ class ThreadPool:
         Method used to join all the threads the moment
         the threadpool has been shutdown.
         '''
-        if self.shutdown.is_set():
+        if self.shutdown.is_set() and self.jobs_queue.empty():
             for _ in range(self.num_threads):
                 TaskRunner(self).join()
 
